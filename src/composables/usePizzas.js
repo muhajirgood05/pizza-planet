@@ -1,11 +1,12 @@
 import { onMounted, ref } from 'vue'
-import { getDocs } from 'firebase/firestore'
+import { getDocs, deleteDoc, doc } from 'firebase/firestore'
 import { dbPizzasRef } from '../firebase'
 
 export default function usePizzas() {
   const allPizzas = ref([])
 
   async function getPizzas() {
+    allPizzas.value = []
     const docs = await getDocs(dbPizzasRef)
 
     // Iterasi melalui docChanges
@@ -23,7 +24,13 @@ export default function usePizzas() {
   }
 
   onMounted(getPizzas)
+  async function deletePizza(id) {
+    const pizza = doc(dbPizzasRef, id)
+    await deleteDoc(pizza)
+    getPizzas()
+  }
   return {
     allPizzas,
+    deletePizza,
   }
 }
