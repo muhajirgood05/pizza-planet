@@ -4,33 +4,43 @@ import { dbPizzasRef } from '../firebase'
 
 export default function usePizzas() {
   const allPizzas = ref([])
+  const message = ref('')
 
   async function getPizzas() {
-    allPizzas.value = []
-    const docs = await getDocs(dbPizzasRef)
+    try {
+      message.value = ''
+      allPizzas.value = []
 
-    // Iterasi melalui docChanges
+      const docs = await getDocs(dbPizzasRef)
 
-    docs.docChanges().forEach((change) => {
-      if (change.type === 'added') {
+      docs.forEach(function (doc) {
         // Tambahkan data pizza ke array allPizzas
-
-        allPizzas.value.push({
-          id: change.doc.id, // ID dokumen
-          ...change.doc.data(), // Data pizza
-        })
-      }
-    })
+        const pizza = {
+          id: doc.id, // ID dokumen
+          ...doc.data(),
+        }
+        allPizzas.value.push(pizza)
+      })
+    } catch (error) {
+      message.value = 'There was an error fetching pizzas, plaese reload the page'
+    }
   }
 
   onMounted(getPizzas)
+
   async function deletePizza(id) {
-    const pizza = doc(dbPizzasRef, id)
-    await deleteDoc(pizza)
-    getPizzas()
+    try {
+      message.value = ''
+      const pizza = doc(dbPizzasRef, id)
+      await deleteDoc(pizza)
+      getPizzas()
+    } catch (error) {
+      message.value = 'There was an error deleteing the pizza, plaease try again!'
+    }
   }
   return {
     allPizzas,
     deletePizza,
+    message,
   }
 }

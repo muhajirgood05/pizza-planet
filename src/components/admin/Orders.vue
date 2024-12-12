@@ -1,7 +1,12 @@
+<script setup>
+import useOrders from '@/composables/useOrders'
+const { allOrders } = useOrders()
+</script>
+
 <template>
   <section class="admin_section_header">
     <header class="admin_section_header">
-      <h3>Current orders (5)</h3>
+      <h3>Current orders ({{ allOrders.length }})</h3>
     </header>
     <table>
       <tr>
